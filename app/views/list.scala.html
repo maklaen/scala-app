@@ -1,0 +1,105 @@
+@(currentPage: Page[(Computer, Option[Company])], currentOrderBy: Int, currentFilter: String)(implicit request: MessagesRequestHeader)
+
+@import helper._
+
+@link(newPage: Int, newOrderBy: Option[Int] = None) = @{
+    routes.HomeController.list(newPage, newOrderBy.map { orderBy =>
+        if(orderBy == scala.math.abs(currentOrderBy)) -currentOrderBy else orderBy
+    }.getOrElse(currentOrderBy), currentFilter)
+}
+
+@header(orderBy: Int, title: String) = {
+    <th class="col@orderBy header @if(scala.math.abs(currentOrderBy) == orderBy) { @{if(currentOrderBy < 0) "headerSortDown" else "headerSortUp"} }">
+        <a href="@link(0, Some(orderBy))">@title</a>
+    </th>
+}
+
+@main {
+<div>
+    <div>
+    <h1 id="section-title">@Messages("", currentPage)</h1>
+
+    @request.flash.get("success").map { message =>
+        <div class="alert-message warning">
+            <strong>ОК!</strong> @message
+        </div>
+    }
+
+    <div id="actions">
+
+        @form(action=routes.HomeController.list()) {
+            <input type="search" id="searchbox" name="f" value="@currentFilter" placeholder="Название...">
+            <input type="submit" id="searchsubmit" value="Поиск" class="btn primary">
+        }
+
+        <a class="btn success" id="add" href="@routes.HomeController.create()">Добавить новый</a>
+
+    </div>
+    </div>
+
+    @Option(currentPage.items).filterNot(_.isEmpty).map { computers =>
+
+    <table class="computers zebra-striped">
+        <thead>
+            <tr>
+                @header(2, "Модель")
+                @header(3, "Дата выпуска")
+                @header(4, "Начало продаж")
+                @header(5, "Бренд")
+            </tr>
+        </thead>
+        <tbody>
+
+        @computers.map {
+            case (computer, company) => {
+                <tr>
+                    <td><a href="@routes.HomeController.edit(computer.id.get)">@computer.name</a></td>
+                    <td>
+                    @computer.introduced.map(_.format("dd MMM yyyy")).getOrElse { <em>-</em> }
+                    </td>
+                    <td>
+                    @computer.discontinued.map(_.format("dd MMM yyyy")).getOrElse { <em>-</em> }
+                    </td>
+                    <td>
+                    @company.map(_.name).getOrElse { <em>-</em> }
+                    </td>
+                </tr>
+            }
+        }
+
+        </tbody>
+    </table>
+
+    <div id="pagination" class="pagination">
+        <ul>
+            @currentPage.prev.map { page =>
+            <li class="prev">
+                <a href="@link(page)">Предыдущий</a>
+            </li>
+            }.getOrElse {
+                <li class="prev disabled">
+                    <a>Предыдущий</a>
+                </li>
+            }
+
+            @currentPage.next.map { page =>
+            <li class="next">
+                <a href="@link(page)">Следующий</a>
+            </li>
+            }.getOrElse {
+                <li class="next disabled">
+                    <a>Следующий</a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    }.getOrElse {
+
+        <div class="well">
+            <em>Oops!! Ничего не найдено</em>
+        </div>
+
+    }
+</div>
+}

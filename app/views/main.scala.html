@@ -1,0 +1,26 @@
+@(content: Html)(implicit request: MessagesRequestHeader)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Копьютерная база</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")"/>
+    </head>
+    <body>
+<div>
+        <header class="topbar">
+            <h1 class="fill" id="header-title">
+                <a href="@routes.HomeController.index()">
+                    Копьютерная база
+                </a>
+            </h1>
+        </header>
+    </div>
+    <div>
+        <section id="main">
+        @content
+        </section>
+    </div>
+    </body>
+</html>

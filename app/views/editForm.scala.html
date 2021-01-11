@@ -1,0 +1,39 @@
+@(id: Long, computerForm: Form[Computer], companies : Seq[(String, String)])(implicit requestHeader: MessagesRequestHeader)
+
+@import views.html.helper._
+
+@main {
+
+    <h1>Внести изменения</h1>
+
+    @form(routes.HomeController.update(id)) {
+
+        <fieldset>
+            @CSRF.formField
+            @inputText(computerForm("name"), Symbol("_label") -> "Модель", Symbol("_help") -> "")
+            @inputText(computerForm("introduced"), Symbol("_label") -> "Дата выпуска", Symbol("_help") -> "")
+            @inputText(computerForm("discontinued"), Symbol("_label") -> "Начало продаж", Symbol("_help") -> "")
+
+            @select(
+                computerForm("company"),
+                companies,
+                Symbol("_label") -> "Бренд",
+                Symbol("_default") -> "-- Выберите бренд --",
+                Symbol("_showConstraints") -> false
+            )
+        </fieldset>
+        <p>Вводите дату в формате dd-MM-yyyy</p>
+
+        <div class="actions">
+            <input type="submit" value="Сохранить" class="btn primary">
+            <a href="@routes.HomeController.list()" class="btn">Отмена</a>
+        </div>
+
+    }
+
+    @form(routes.HomeController.delete(id), Symbol("class") -> "topRight") {
+        @CSRF.formField
+        <input type="submit" value="Удалить" class="btn danger">
+    }
+
+}
